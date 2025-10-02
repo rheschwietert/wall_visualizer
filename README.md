@@ -9,6 +9,17 @@ It’s an educational and visualization tool that demonstrates:
 
 ---
 
+## Requirements
+
+- Python 3.9
+- Install dependencies with:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
 ## Features
 - **Brick & Wall Models** – Define brick dimensions and wall size.
 - **Bond System** – Currently supports stretcher bond, easy to extend with other bond types.
@@ -32,6 +43,8 @@ Order of build modes:
 Horizontal Build: Simple course-by-course placement.
 
 Smart Build: Optimized to minimize platform drives and lifts.
+
+---
 
 ## Controls
 
