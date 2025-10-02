@@ -21,7 +21,7 @@ It’s an educational and visualization tool that demonstrates:
 ##  How to Run
 1. Clone the repository:
    ```bash
-   git clone https://github.com/YOUR-USERNAME/wall-builder.git
+   git clone https://github.com/rheschwietert/wall_visualizer.git
    cd wall-builder
 2. Run the script
    ```bash
