@@ -3,7 +3,7 @@
 This project simulates building a brick wall with different stacking strategies and robot reachability.  
 It’s an educational and visualization tool that demonstrates:
 - Horizontal stacking (row-by-row building).
-- Smart stacking (using sliding windows and support rules).
+- Smart stacking (increased efficiency in stacking).
 - Simple ASCII rendering of the wall as it is being built.
 - Robot reach constraints and stride-based planning.
 
@@ -23,3 +23,19 @@ It’s an educational and visualization tool that demonstrates:
    ```bash
    git clone https://github.com/YOUR-USERNAME/wall-builder.git
    cd wall-builder
+2. Run the script
+   ```bash
+   python wall_builder.py
+   
+Order of build modes:
+
+Horizontal Build: Simple course-by-course placement.
+
+Smart Build: Optimized to minimize platform drives and lifts.
+
+## Controls
+
+Press ENTER → Place next brick.
+
+Type q and press ENTER → Fill the wall instantly and quit.
+
