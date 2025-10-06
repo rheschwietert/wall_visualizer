@@ -32,6 +32,7 @@ It’s an educational and visualization tool that demonstrates:
    python wall_builder.py
 ```
 **Choosing a bond**
+
 When the program starts, you'll be prompted:
 ```bash
 Choose bond [wild/stretcher] (default: wild):
