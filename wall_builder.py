@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from math import floor, ceil
 import os
 import random
+import copy
 random.seed(1)
 
 @dataclass
@@ -728,34 +729,80 @@ def check_row_completion(window_design, row, sliding_windows):
     return all(b.get('built') for b in bricks_in_row)
 
 
-def main():
-    brick = Brick()
-    wall = Wall(2300.0, 2000.0)
-    robot = Robot()
-    bond = WildBond()
+def make_bond(name: str) -> Bond:
+    """Factory: 'wild'|'w' -> WildBond, 'stretcher'|'strecher'|'s' -> StrecherBond."""
+    name = (name or "").strip().lower()
+    if name in ("wild", "w"):
+        return WildBond()
+    if name in ("stretcher", "strecher", "s"):
+        return StrecherBond()
+    raise ValueError(f"Unknown bond: {name!r}")
 
-    wall_design = {}
-    window_design = {}
+def run_session(brick: Brick, wall: Wall, robot: Robot, bond: Bond) -> None:
+    """Run one full build session (plan → horizontal → smart) for a given bond.
+
+    Uses fresh containers each run so state from one session never leaks into the next.
+    """
+    # fresh copies (belt & suspenders—keeps per-run state clean)
+    brick = copy.deepcopy(brick)
+    wall  = copy.deepcopy(wall)
+    robot = copy.deepcopy(robot)
+    bond  = copy.deepcopy(bond)
+
+    # --- plan windows
+    wall_design: dict[str, list[dict]] = {}
+    window_design: dict[int, list[dict]] = {}
+
     sliding_windows = sliding_window(wall, robot, brick, bond)
-    for i, window in enumerate(sliding_windows):
+    for i, _ in enumerate(sliding_windows):
         window_design[i] = []
 
-
+    # --- plan all courses for the chosen bond
     for n in range(wall.n_courses(brick)):
         prev_course = wall_design[f'row {n-1}'] if n > 0 else None
         wall_design[f'row {n}'] = plan_course(wall, brick, n, bond, prev_course)
         assign_bricks_to_windows(wall_design, n, sliding_windows, window_design)
 
-    # # horizontal build
-    print("\n--- HORIZONTAL BUILD ---")
+    # --- horizontal build
+    print(f"\n--- HORIZONTAL BUILD ({bond.__class__.__name__}) ---")
     horizontal_stack(wall_design, wall, brick)
 
-    # reset to try smart mode fairly
+    # --- reset to try smart build fairly
     reset_wall(wall_design)
 
-    # smart build
-    print("\n--- SMART BUILD ---")
+    # --- smart build
+    print(f"\n--- SMART BUILD ({bond.__class__.__name__}) ---")
     smart_stack(wall_design, wall, brick, bond, window_design, sliding_windows, robot)
+
+
+def ask_then_run(brick, wall, robot):
+    current = "wild"
+    while True:
+        run_session(brick, wall, robot, make_bond(current))
+        ans = input("Switch to the other bond and rebuild? [y/N]: ").strip().lower()
+        if ans not in ("y","yes"):
+            break
+        current = "stretcher" if current == "wild" else "wild"
+
+
+def main():
+    brick = Brick()
+    wall = Wall(2300.0, 2000.0)
+    robot = Robot()
+
+    # initial pick
+    choice = input("Choose bond [wild/stretcher] (default: wild): ").strip().lower() or "wild"
+    current = "wild" if choice not in ("stretcher", "strecher", "s") else "stretcher"
+
+    while True:
+        bond = make_bond(current)
+        print(f"\n=== RUNNING {current.upper()} BOND ===")
+        run_session(brick, wall, robot, bond)
+
+        ans = input("\nSwitch to the other bond and rebuild? [y/N]: ").strip().lower()
+        if ans not in ("y", "yes"):
+            break
+        current = "stretcher" if current == "wild" else "wild"
 
 
 
