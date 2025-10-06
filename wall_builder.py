@@ -591,7 +591,7 @@ def horizontal_stack(wall_design, wall, brick):
     quit = False
     for n in range(wall.n_courses(brick)):
         for m in wall_design[f'row {n}']:
-            cmd = input("[ENTER]=next brick | q=fill wall and quit: ").strip().lower()
+            cmd = input("[ENTER]=next brick | q=fill wall and continue: ").strip().lower()
             if cmd == 'q':
                 fill_wall(wall_design)
                 quit = True
