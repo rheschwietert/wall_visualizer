@@ -624,7 +624,9 @@ def smart_stack(wall_design, wall, brick, bond, window_design, sliding_windows, 
     stride_n = 1
     brick_idx = build_brick_idx(wall_design)
 
+
     for i, (win_id, bricks) in enumerate(reorder_windows(window_design, sliding_windows, robot, brick, bond)):
+        nb = False
         if bond.build_directions[i] == 'left':
             bricks.sort(key=lambda b: (b["brick_y_i"], -b["brick_x_i"]))
         while True:
@@ -651,13 +653,15 @@ def smart_stack(wall_design, wall, brick, bond, window_design, sliding_windows, 
             # place exactly one brick
             next_brick['ready'] = True
             next_brick['built'] = True
+            nb = True
 
             # show ASCII wall after this single placement
             clear_terminal()
             print(draw_wall(wall_design))
             x, y = next_brick['center_x'], next_brick['center_y']
             print(f'placed brick at x:{x} y:{y} in stride: {stride_n}')
-        stride_n += 1
+        if nb:
+            stride_n += 1
     print("Smart build finished")
 
 def split_row_ids(row_ids, takes, row):
