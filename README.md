@@ -22,21 +22,20 @@ pip install -r requirements.txt
 
 ## Features
 - **Brick & Wall Models** – Define brick dimensions and wall size.
-- **Bond System** – Currently supports stretcher bond, easy to extend with other bond types.
-- **Horizontal Build** – Build row by row by pressing `ENTER`.
-- **Smart Build** – Simulates how a robot would build in minimizing platform drives and lifts.
+- **Bond System** – Choose at runtime between **Stretcher** and **Wild (Wildverband)**; easy to extend with more.
+- **Horizontal Build** – Build brick by brick by pressing `ENTER`.
+- **Smart Build** – Simulates how a robot would build in minimizing platform drives and lifts. Build brick by brick by pressing `ENTER`.
 - **Visualization** – ASCII drawing of the wall updates as you build.
 
 ---
 
 ##  How to Run
-1. Clone the repository:
+
    ```bash
    git clone https://github.com/rheschwietert/wall_visualizer.git
-   cd wall-builder
-2. Run the script
-   ```bash
+   cd wall_visualizer
    python wall_builder.py
+```
    
 Order of build modes:
 
@@ -50,5 +49,5 @@ Smart Build: Optimized to minimize platform drives and lifts.
 
 Press ENTER → Place next brick.
 
-Type q and press ENTER → Fill the wall instantly and quit.
+Type q and press ENTER → Fill the wall instantly and continue.
 
