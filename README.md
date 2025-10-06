@@ -12,11 +12,6 @@ It’s an educational and visualization tool that demonstrates:
 ## Requirements
 
 - Python 3.9
-- Install dependencies with:
-
-```bash
-pip install -r requirements.txt
-```
 
 ---
 
@@ -36,8 +31,19 @@ pip install -r requirements.txt
    cd wall_visualizer
    python wall_builder.py
 ```
-   
-Order of build modes:
+**Choosing a bond**
+When the program starts, you'll be prompted:
+```bash
+Choose bond [wild/stretcher] (default: wild):
+```
+Type wild or stretcher (or press ENTER for the default). The wall is planned and built for that bond.
+At the end of the run you’ll see:
+```bash
+Switch to the other bond and rebuild? [y/N]:
+```
+Enter y to instantly re-plan and rebuild the exact same wall with the other bond.
+
+**Order of build modes**
 
 Horizontal Build: Simple course-by-course placement.
 
@@ -50,4 +56,22 @@ Smart Build: Optimized to minimize platform drives and lifts.
 Press ENTER → Place next brick.
 
 Type q and press ENTER → Fill the wall instantly and continue.
+
+## Key Ideas
+
+Indices — every brick gets (brick_x_i, brick_y_i) and center_(x,y) for geometry.
+
+Supporters — a brick becomes ready only when its required supporters below are ready (with edge allowances at the ends).
+
+“Big” joints — in WildBond, a few head joints may be widened (*_big) to perfectly finish a course without breaking rules.
+
+## Extending
+
+Add new bonds by subclassing Bond and implementing:
+
+starts_with_half(course_i)
+
+start_brick(course_i, wall)
+
+next_brick(to_fill, brick, wall, course_i)
 
