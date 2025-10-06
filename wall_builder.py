@@ -740,16 +740,14 @@ def make_bond(name: str) -> Bond:
 
 def run_session(brick: Brick, wall: Wall, robot: Robot, bond: Bond) -> None:
     """Run one full build session (plan → horizontal → smart) for a given bond.
-
-    Uses fresh containers each run so state from one session never leaks into the next.
     """
-    # fresh copies (belt & suspenders—keeps per-run state clean)
+  
     brick = copy.deepcopy(brick)
     wall  = copy.deepcopy(wall)
     robot = copy.deepcopy(robot)
     bond  = copy.deepcopy(bond)
 
-    # --- plan windows
+    # plan windows
     wall_design: dict[str, list[dict]] = {}
     window_design: dict[int, list[dict]] = {}
 
@@ -757,20 +755,20 @@ def run_session(brick: Brick, wall: Wall, robot: Robot, bond: Bond) -> None:
     for i, _ in enumerate(sliding_windows):
         window_design[i] = []
 
-    # --- plan all courses for the chosen bond
+    #  plan all courses for the chosen bond
     for n in range(wall.n_courses(brick)):
         prev_course = wall_design[f'row {n-1}'] if n > 0 else None
         wall_design[f'row {n}'] = plan_course(wall, brick, n, bond, prev_course)
         assign_bricks_to_windows(wall_design, n, sliding_windows, window_design)
 
-    # --- horizontal build
+    # horizontal build
     print(f"\n--- HORIZONTAL BUILD ({bond.__class__.__name__}) ---")
     horizontal_stack(wall_design, wall, brick)
 
-    # --- reset to try smart build fairly
+    # reset to try smart build
     reset_wall(wall_design)
 
-    # --- smart build
+    # smart build
     print(f"\n--- SMART BUILD ({bond.__class__.__name__}) ---")
     smart_stack(wall_design, wall, brick, bond, window_design, sliding_windows, robot)
 
