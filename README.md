@@ -1,7 +1,7 @@
 ## Wall Visualizer
 
-This project simulates building a brick wall with different stacking strategies and robot reachability.  
-It’s an educational and visualization tool that demonstrates:
+This project simulates building a brick wall with different stacking strategies and bonds.  
+It’s a visualization tool that demonstrates:
 - Horizontal stacking (row-by-row building).
 - Smart stacking (increased efficiency in stacking).
 - Simple ASCII rendering of the wall as it is being built.
@@ -16,10 +16,10 @@ It’s an educational and visualization tool that demonstrates:
 ---
 
 ## Features
-- **Brick & Wall Models** – Define brick dimensions and wall size.
+- **Brick, Wall & Robot Models** – Define brick dimensions, wall size and robot reach dimensions.
 - **Bond System** – Choose at runtime between **Stretcher** and **Wild (Wildverband)**; easy to extend with more.
-- **Horizontal Build** – Build brick by brick by pressing `ENTER`.
-- **Smart Build** – Simulates how a robot would build in minimizing platform drives and lifts. Build brick by brick by pressing `ENTER`.
+- **Horizontal Build** – Builds row by row. 
+- **Smart Build** – Simulates how a robot would build in minimizing platform drives and lifts.
 - **Visualization** – ASCII drawing of the wall updates as you build.
 
 ---
@@ -42,7 +42,7 @@ At the end of the run you’ll see:
 ```bash
 Switch to the other bond and rebuild? [y/N]:
 ```
-Enter y to instantly re-plan and rebuild the exact same wall with the other bond.
+Enter y to instantly re-plan and rebuild the same wall with the other bond.
 
 **Order of build modes**
 
@@ -60,11 +60,35 @@ Type q and press ENTER → Fill the wall instantly and continue.
 
 ## Key Ideas
 
-Indices — every brick gets (brick_x_i, brick_y_i) and center_(x,y) for geometry.
+- **Course planning per bond** — `plan_course(...)` generates each row using the active bond:
+  - `StrecherBond`: alternates half/full starts; fills with full bricks.
+  - `WildBond`: alternates `half` / `three_quarter` starts, limits consecutive shapes, and avoids repeating step patterns.
 
-Supporters — a brick becomes ready only when its required supporters below are ready (with edge allowances at the ends).
+- **Indices & geometry** — Every brick carries:
+  - grid indices: `brick_x_i`, `brick_y_i`
+  - geometry: `center_x`, `center_y`, `prev_row_length`, `new_row_length`
+  - state: `built`, `ready`, and the `windows` it belongs to
 
-“Big” joints — in WildBond, a few head joints may be widened (*_big) to perfectly finish a course without breaking rules.
+- **Windowing (robot reach)** — `sliding_window(...)` tiles the wall into reach-sized windows with overlaps.  
+  Bricks are assigned via `assign_bricks_to_windows(...)` and sorted by `(brick_y_i, brick_x_i)`.
+
+- **Build directions per pass** — `reorder_windows(...)` computes a zigzag order and per-window `build_directions` (`left`/`right`) used by the dependency logic.
+
+- **Dependencies (“supporters”)** — A brick becomes `ready` only when:
+  - it’s inside the *current* window,
+  - it’s in the first course **or**
+  - it has valid supporters below (plus edge allowances).  
+  Implemented in `find_supporters(...)` and checked by `meets_build_requirements(...)`.
+
+- **Run-length limits (Wild)** — To keep visual randomness:
+  - Counters `n_cons_halves` and `n_cons_full` track consecutive `half` and `full` placements (incremented in `plan_course(...)` when two same-shape bricks touch).
+  - If `n_cons_halves == 3`, `WildBond.next_brick(...)` forces a `full` next (and resets the half counter).
+  - If `n_cons_full == 5`, it forces a `half` next (and resets the full counter).
+
+- **Anti-ladder rule (Wild)** — `check_prev_course(...)` prevents repeating step sizes across courses; after 5 identical steps it forces a row reset and replanning.
+
+- **Head-joint distribution (Wild)** — `check_head_joint(...)` computes how many head joints can be widened.  
+  In `plan_course(...)`, a subset of joints may become `*_big` to finish the course cleanly (“stootvoegen”), shifting bricks forward accordingly.
 
 ## Extending
 
